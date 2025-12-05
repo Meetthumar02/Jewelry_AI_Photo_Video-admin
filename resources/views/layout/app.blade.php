@@ -50,6 +50,25 @@
                 </li>
             </ul>
 
+            <div class="px-4 pt-3 pb-1 text-uppercase small text-muted fw-semibold" style="font-size: 0.7rem;">CREATIVE AI
+            </div>
+
+            <ul class="nav flex-column px-3">
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.creative-ai.styles.*') ? 'active-menu' : '' }}"
+                        href="{{ route('admin.creative-ai.styles.index') }}">
+                        <i class="fas fa-palette me-2"></i> Select Your Style
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.creative-ai.model-designs.*') ? 'active-menu' : '' }}"
+                        href="{{ route('admin.creative-ai.model-designs.index') }}">
+                        <i class="fas fa-cube me-2"></i> Choose Model Design
+                    </a>
+                </li>
+            </ul>
+
         </nav>
 
         <div class="p-4 border-top">
