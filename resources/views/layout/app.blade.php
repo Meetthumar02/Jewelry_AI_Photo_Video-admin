@@ -43,20 +43,11 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="{{ route('admin.users') }}" class="nav-link">
+                    <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.users') ? 'active-menu' : '' }}"
+                        href="{{ route('admin.users') }}">
                         <i class="fas fa-users me-2"></i> Users
                     </a>
                 </li>
-
-
-                {{-- <hr class="my-2 mx-3 border"> --}
-
-                {{-- <li class="nav-item">
-                    <a class="nav-link d-flex align-items-center {{ request()->routeIs('projects') ? 'active-menu' : '' }}"
-                        href="{{ route('projects') }}">
-                        <i class="fas fa-folder me-3"></i> Projects
-                    </a>
-                </li> --}}
             </ul>
 
         </nav>

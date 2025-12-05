@@ -5,33 +5,33 @@
 @section('content')
     <div class="container-fluid py-4">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <div>
                 <h3 class="fw-bold mb-1">User Management</h3>
                 <p class="text-muted mb-0">Manage and monitor all registered users</p>
             </div>
-            <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 fs-6">
+            <div class="badge bg-primary bg-opacity-10 text-primary px-4 py-2 fs-6 rounded-pill shadow-sm">
                 {{ $users->total() }} Total Users
             </div>
         </div>
 
-        <div class="card shadow border-0 rounded-4">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
 
-            <div class="card-header bg-white border-bottom py-4 rounded-top-4">
+            <div class="card-header bg-white border-bottom py-4">
                 <form method="GET" action="{{ route('admin.users') }}" class="row g-3 align-items-end">
 
-                    <div class="col-lg-4">
+                    <div class="col-xl-3 col-lg-3 col-md-6">
                         <label class="form-label small text-muted">Search Users</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-0">
+                        <div class="input-group shadow-sm">
+                            <span class="bg-light border-0">
                                 <i class="bi bi-search"></i>
                             </span>
-                            <input type="text" name="search" class="form-control border-0 shadow-sm"
+                            <input type="text" name="search" class="form-control border-0"
                                 placeholder="Search by name or email..." value="{{ request('search') }}">
                         </div>
                     </div>
 
-                    <div class="col-lg-3">
+                    <div class="col-xl-2 col-lg-2 col-md-6">
                         <label class="form-label small text-muted">Subscription Status</label>
                         <select name="subscription_status" class="form-select shadow-sm">
                             <option value="">All Status</option>
@@ -42,7 +42,7 @@
                         </select>
                     </div>
 
-                    <div class="col-lg-2">
+                    <div class="col-xl-2 col-lg-2 col-md-6">
                         <label class="form-label small text-muted">Plan Duration</label>
                         <select name="duration" class="form-select shadow-sm">
                             <option value="">All</option>
@@ -53,7 +53,7 @@
                         </select>
                     </div>
 
-                    <div class="col-lg-2">
+                    <div class="col-xl-2 col-lg-2 col-md-6">
                         <label class="form-label small text-muted">Sort By</label>
                         <select name="sort" class="form-select shadow-sm">
                             <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest</option>
@@ -65,13 +65,14 @@
                         </select>
                     </div>
 
-                    <div class="col-lg-2">
-                        <button type="submit" class="btn btn-primary w-100 shadow-sm">Apply</button>
+                    <div class="col-xl-2 col-lg-3 col-md-6">
+                        <label class="form-label small text-muted d-block">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100 shadow-sm rounded-pill">Apply</button>
                     </div>
 
                     @if (request('search') || request('subscription_status') || request('sort') || request('duration'))
-                        <div class="col-12">
-                            <a href="{{ route('admin.users') }}" class="btn btn-outline-secondary btn-sm">
+                        <div class="col-12 mt-2">
+                            <a href="{{ route('admin.users') }}" class="btn btn-outline-secondary btn-sm rounded-pill">
                                 Clear All Filters
                             </a>
                         </div>
@@ -94,7 +95,7 @@
 
                         <tbody>
                             @forelse ($users as $user)
-                                <tr class="border-bottom">
+                                <tr class="border-bottom table-row-hover">
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="avatar-circle me-3">
@@ -111,7 +112,7 @@
                                     </td>
 
                                     <td class="text-center">
-                                        <span class="badge bg-info bg-opacity-10 text-info px-3 py-2">
+                                        <span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill">
                                             {{ number_format($user->total_credits) }}
                                         </span>
                                     </td>
@@ -119,16 +120,17 @@
                                     <td class="text-center">
                                         @if ($user->is_subscribed)
                                             <span
-                                                class="badge bg-success bg-opacity-10 text-success px-3 py-2">Active</span>
+                                                class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Active</span>
                                         @else
                                             <span
-                                                class="badge bg-danger bg-opacity-10 text-danger px-3 py-2">Inactive</span>
+                                                class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">Inactive</span>
                                         @endif
                                     </td>
 
                                     <td class="text-center">
                                         @if (!empty($user->duration_months))
-                                            <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2">
+                                            <span
+                                                class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill">
                                                 {{ $user->duration_months }} Months
                                             </span>
                                         @else
@@ -162,13 +164,35 @@
             </div>
 
             @if ($users->hasPages())
-                <div
-                    class="card-footer bg-white border-top py-3 d-flex justify-content-between align-items-center flex-wrap">
-                    <div class="small text-muted">
-                        Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} users
-                    </div>
-                    <div>
-                        {{ $users->withQueryString()->links('pagination::bootstrap-5') }}
+                <div class="card-footer bg-white border-top py-4">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div class="small text-muted">
+                            Showing {{ $users->firstItem() }} to {{ $users->lastItem() }} of {{ $users->total() }} users
+                        </div>
+
+                        <nav>
+                            <ul class="pagination pagination-custom mb-0">
+                                @if ($users->onFirstPage())
+                                    <li class="page-item disabled"><span class="page-link">Prev</span></li>
+                                @else
+                                    <li class="page-item"><a class="page-link"
+                                            href="{{ $users->previousPageUrl() }}">Prev</a></li>
+                                @endif
+
+                                @foreach ($users->getUrlRange(1, $users->lastPage()) as $page => $url)
+                                    <li class="page-item {{ $page == $users->currentPage() ? 'active' : '' }}">
+                                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                    </li>
+                                @endforeach
+
+                                @if ($users->hasMorePages())
+                                    <li class="page-item"><a class="page-link" href="{{ $users->nextPageUrl() }}">Next</a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                                @endif
+                            </ul>
+                        </nav>
                     </div>
                 </div>
             @endif
@@ -186,15 +210,34 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
+            font-weight: 600
         }
 
         .card {
-            transition: 0.3s;
+            transition: 0.3s
         }
 
-        .table tbody tr:hover {
-            background: #f9fafb;
+        .table-row-hover:hover {
+            background: #f8f9fd
+        }
+
+        .pagination-custom .page-link {
+            border-radius: 10px;
+            border: none;
+            margin: 0 4px;
+            color: #667eea;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08)
+        }
+
+        .pagination-custom .page-item.active .page-link {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff
+        }
+
+        .pagination-custom .page-link:hover {
+            background: #667eea;
+            color: #fff
         }
     </style>
 @endsection
