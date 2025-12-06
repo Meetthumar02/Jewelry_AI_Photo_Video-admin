@@ -54,12 +54,12 @@
 
                             <div class="mb-4">
                                 <label for="image" class="form-label fw-semibold">Image</label>
-                                @if ($modelDesign->image)
+                                @if ($modelDesign->image && $modelDesign->image_url)
                                     <div class="mb-3">
-                                        <img src="{{ asset('storage/' . $modelDesign->image) }}" alt="{{ $modelDesign->name }}" 
+                                        <img src="{{ $modelDesign->image_url }}" alt="{{ $modelDesign->name }}" 
                                             style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 1px solid #ddd;">
                                         <div class="mt-2">
-                                            <small class="text-muted">Current image</small>
+                                            <small class="text-muted">Current image: {{ $modelDesign->image }}</small>
                                         </div>
                                     </div>
                                 @endif

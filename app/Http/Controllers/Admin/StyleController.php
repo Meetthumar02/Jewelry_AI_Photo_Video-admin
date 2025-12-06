@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Style;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class StyleController extends Controller
 {
@@ -78,12 +79,23 @@ class StyleController extends Controller
 
             // Handle image upload
             if ($request->hasFile('image')) {
-                // Ensure storage directory exists
-                if (!Storage::disk('public')->exists('styles')) {
-                    Storage::disk('public')->makeDirectory('styles');
+                $file = $request->file('image');
+                $originalName = $file->getClientOriginalName();
+                $styleName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $validated['name']);
+                
+                // Create directory path: public/upload/Style/Style Name/
+                $uploadPath = public_path('upload/Style/' . $styleName);
+                
+                // Create directory if it doesn't exist
+                if (!File::exists($uploadPath)) {
+                    File::makeDirectory($uploadPath, 0755, true);
                 }
-                $imagePath = $request->file('image')->store('styles', 'public');
-                $validated['image'] = $imagePath;
+                
+                // Move file to the new location
+                $file->move($uploadPath, $originalName);
+                
+                // Store only the original filename in database
+                $validated['image'] = $originalName;
             }
 
             // Handle status checkbox (if not present, default to false)
@@ -133,18 +145,55 @@ class StyleController extends Controller
                 'sort_order' => 'nullable|integer|min:0',
             ]);
 
+            $oldStyleName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $style->name);
+            $newStyleName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $validated['name']);
+            
             // Handle image upload
             if ($request->hasFile('image')) {
-                // Ensure storage directory exists
-                if (!Storage::disk('public')->exists('styles')) {
-                    Storage::disk('public')->makeDirectory('styles');
-                }
+                $file = $request->file('image');
+                $originalName = $file->getClientOriginalName();
+                
                 // Delete old image if exists
-                if ($style->image && Storage::disk('public')->exists($style->image)) {
-                    Storage::disk('public')->delete($style->image);
+                if ($style->image) {
+                    $oldImagePath = public_path('upload/Style/' . $oldStyleName . '/' . $style->image);
+                    if (File::exists($oldImagePath)) {
+                        File::delete($oldImagePath);
+                    }
                 }
-                $imagePath = $request->file('image')->store('styles', 'public');
-                $validated['image'] = $imagePath;
+                
+                // Create directory path: public/upload/Style/Style Name/
+                $uploadPath = public_path('upload/Style/' . $newStyleName);
+                
+                // Create directory if it doesn't exist
+                if (!File::exists($uploadPath)) {
+                    File::makeDirectory($uploadPath, 0755, true);
+                }
+                
+                // Move file to the new location
+                $file->move($uploadPath, $originalName);
+                
+                // Store only the original filename in database
+                $validated['image'] = $originalName;
+            } elseif ($style->image && $oldStyleName != $newStyleName) {
+                // Name changed but no new image - move existing image to new directory
+                $oldImagePath = public_path('upload/Style/' . $oldStyleName . '/' . $style->image);
+                $newImagePath = public_path('upload/Style/' . $newStyleName);
+                
+                if (File::exists($oldImagePath)) {
+                    // Create new directory if it doesn't exist
+                    if (!File::exists($newImagePath)) {
+                        File::makeDirectory($newImagePath, 0755, true);
+                    }
+                    
+                    // Move image to new location
+                    File::move($oldImagePath, $newImagePath . '/' . $style->image);
+                    
+                    // Delete old directory if empty
+                    if (File::exists(public_path('upload/Style/' . $oldStyleName)) && count(File::files(public_path('upload/Style/' . $oldStyleName))) == 0) {
+                        File::deleteDirectory(public_path('upload/Style/' . $oldStyleName));
+                    }
+                }
+                // Image name stays the same in database
             }
 
             // Handle status checkbox
@@ -170,8 +219,18 @@ class StyleController extends Controller
     public function destroy(Style $style)
     {
         // Delete image if exists
-        if ($style->image && Storage::disk('public')->exists($style->image)) {
-            Storage::disk('public')->delete($style->image);
+        if ($style->image) {
+            $styleName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $style->name);
+            $imagePath = public_path('upload/Style/' . $styleName . '/' . $style->image);
+            if (File::exists($imagePath)) {
+                File::delete($imagePath);
+            }
+            
+            // Delete directory if empty
+            $styleDir = public_path('upload/Style/' . $styleName);
+            if (File::exists($styleDir) && count(File::files($styleDir)) == 0) {
+                File::deleteDirectory($styleDir);
+            }
         }
 
         $style->delete();

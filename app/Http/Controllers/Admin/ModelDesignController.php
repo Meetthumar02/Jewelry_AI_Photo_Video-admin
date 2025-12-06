@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ModelDesign;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class ModelDesignController extends Controller
 {
@@ -78,12 +79,23 @@ class ModelDesignController extends Controller
 
             // Handle image upload
             if ($request->hasFile('image')) {
-                // Ensure storage directory exists
-                if (!Storage::disk('public')->exists('model-designs')) {
-                    Storage::disk('public')->makeDirectory('model-designs');
+                $file = $request->file('image');
+                $originalName = $file->getClientOriginalName();
+                $modelDesignName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $validated['name']);
+                
+                // Create directory path: public/upload/Model Design/Model Design Name/
+                $uploadPath = public_path('upload/Model Design/' . $modelDesignName);
+                
+                // Create directory if it doesn't exist
+                if (!File::exists($uploadPath)) {
+                    File::makeDirectory($uploadPath, 0755, true);
                 }
-                $imagePath = $request->file('image')->store('model-designs', 'public');
-                $validated['image'] = $imagePath;
+                
+                // Move file to the new location
+                $file->move($uploadPath, $originalName);
+                
+                // Store only the original filename in database
+                $validated['image'] = $originalName;
             }
 
             // Handle status checkbox (if not present, default to false)
@@ -133,18 +145,55 @@ class ModelDesignController extends Controller
                 'sort_order' => 'nullable|integer|min:0',
             ]);
 
+            $oldModelDesignName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $modelDesign->name);
+            $newModelDesignName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $validated['name']);
+            
             // Handle image upload
             if ($request->hasFile('image')) {
-                // Ensure storage directory exists
-                if (!Storage::disk('public')->exists('model-designs')) {
-                    Storage::disk('public')->makeDirectory('model-designs');
-                }
+                $file = $request->file('image');
+                $originalName = $file->getClientOriginalName();
+                
                 // Delete old image if exists
-                if ($modelDesign->image && Storage::disk('public')->exists($modelDesign->image)) {
-                    Storage::disk('public')->delete($modelDesign->image);
+                if ($modelDesign->image) {
+                    $oldImagePath = public_path('upload/Model Design/' . $oldModelDesignName . '/' . $modelDesign->image);
+                    if (File::exists($oldImagePath)) {
+                        File::delete($oldImagePath);
+                    }
                 }
-                $imagePath = $request->file('image')->store('model-designs', 'public');
-                $validated['image'] = $imagePath;
+                
+                // Create directory path: public/upload/Model Design/Model Design Name/
+                $uploadPath = public_path('upload/Model Design/' . $newModelDesignName);
+                
+                // Create directory if it doesn't exist
+                if (!File::exists($uploadPath)) {
+                    File::makeDirectory($uploadPath, 0755, true);
+                }
+                
+                // Move file to the new location
+                $file->move($uploadPath, $originalName);
+                
+                // Store only the original filename in database
+                $validated['image'] = $originalName;
+            } elseif ($modelDesign->image && $oldModelDesignName != $newModelDesignName) {
+                // Name changed but no new image - move existing image to new directory
+                $oldImagePath = public_path('upload/Model Design/' . $oldModelDesignName . '/' . $modelDesign->image);
+                $newImagePath = public_path('upload/Model Design/' . $newModelDesignName);
+                
+                if (File::exists($oldImagePath)) {
+                    // Create new directory if it doesn't exist
+                    if (!File::exists($newImagePath)) {
+                        File::makeDirectory($newImagePath, 0755, true);
+                    }
+                    
+                    // Move image to new location
+                    File::move($oldImagePath, $newImagePath . '/' . $modelDesign->image);
+                    
+                    // Delete old directory if empty
+                    if (File::exists(public_path('upload/Model Design/' . $oldModelDesignName)) && count(File::files(public_path('upload/Model Design/' . $oldModelDesignName))) == 0) {
+                        File::deleteDirectory(public_path('upload/Model Design/' . $oldModelDesignName));
+                    }
+                }
+                // Image name stays the same in database
             }
 
             // Handle status checkbox
@@ -170,8 +219,18 @@ class ModelDesignController extends Controller
     public function destroy(ModelDesign $modelDesign)
     {
         // Delete image if exists
-        if ($modelDesign->image && Storage::disk('public')->exists($modelDesign->image)) {
-            Storage::disk('public')->delete($modelDesign->image);
+        if ($modelDesign->image) {
+            $modelDesignName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $modelDesign->name);
+            $imagePath = public_path('upload/Model Design/' . $modelDesignName . '/' . $modelDesign->image);
+            if (File::exists($imagePath)) {
+                File::delete($imagePath);
+            }
+            
+            // Delete directory if empty
+            $modelDesignDir = public_path('upload/Model Design/' . $modelDesignName);
+            if (File::exists($modelDesignDir) && count(File::files($modelDesignDir)) == 0) {
+                File::deleteDirectory($modelDesignDir);
+            }
         }
 
         $modelDesign->delete();

@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
         ->name('user.dashboard')
         ->middleware('auth');
 
-    Route::get('/admin/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users');
+        Route::get('/admin/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users');
 
     // Creative AI - Styles
     Route::prefix('admin/creative-ai')->name('admin.creative-ai.')->group(function () {

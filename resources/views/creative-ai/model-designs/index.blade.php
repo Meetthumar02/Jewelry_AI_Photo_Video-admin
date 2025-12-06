@@ -96,8 +96,8 @@
                             @forelse ($modelDesigns as $modelDesign)
                                 <tr class="border-bottom table-row-hover">
                                     <td>
-                                        @if ($modelDesign->image)
-                                            <img src="{{ asset('storage/' . $modelDesign->image) }}" alt="{{ $modelDesign->name }}" 
+                                        @if ($modelDesign->image && $modelDesign->image_url)
+                                            <img src="{{ $modelDesign->image_url }}" alt="{{ $modelDesign->name }}" 
                                                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
                                         @else
                                             <div class="bg-light d-flex align-items-center justify-content-center" 

@@ -96,8 +96,8 @@
                             @forelse ($styles as $style)
                                 <tr class="border-bottom table-row-hover">
                                     <td>
-                                        @if ($style->image)
-                                            <img src="{{ asset('storage/' . $style->image) }}" alt="{{ $style->name }}" 
+                                        @if ($style->image && $style->image_url)
+                                            <img src="{{ $style->image_url }}" alt="{{ $style->name }}" 
                                                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
                                         @else
                                             <div class="bg-light d-flex align-items-center justify-content-center" 
