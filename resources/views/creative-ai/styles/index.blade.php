@@ -3,6 +3,7 @@
 @section('title', 'Select Your Style - Creative AI')
 
 @section('content')
+
     <div class="container-fluid py-4">
 
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
@@ -23,7 +24,7 @@
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
 
@@ -47,8 +48,10 @@
                         <label class="form-label small text-muted">Status</label>
                         <select name="status" class="form-select shadow-sm">
                             <option value="">All Status</option>
-                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active Only</option>
-                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive Only</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active Only
+                            </option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive Only
+                            </option>
                         </select>
                     </div>
 
@@ -58,7 +61,8 @@
                             <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest</option>
                             <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest</option>
                             <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Name A-Z</option>
-                            <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>Name Z-A</option>
+                            <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>Name Z-A
+                            </option>
                         </select>
                     </div>
 
@@ -69,11 +73,13 @@
 
                     @if (request('search') || request('status') || request('sort'))
                         <div class="col-12 mt-2">
-                            <a href="{{ route('admin.creative-ai.styles.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill">
+                            <a href="{{ route('admin.creative-ai.styles.index') }}"
+                                class="btn btn-outline-secondary btn-sm rounded-pill">
                                 Clear All Filters
                             </a>
                         </div>
                     @endif
+
                 </form>
             </div>
 
@@ -95,12 +101,13 @@
                         <tbody>
                             @forelse ($styles as $style)
                                 <tr class="border-bottom table-row-hover">
+
                                     <td>
                                         @if ($style->image && $style->image_url)
-                                            <img src="{{ $style->image_url }}" alt="{{ $style->name }}" 
+                                            <img src="{{ $style->image_url }}" alt="{{ $style->name }}"
                                                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
                                         @else
-                                            <div class="bg-light d-flex align-items-center justify-content-center" 
+                                            <div class="bg-light d-flex align-items-center justify-content-center"
                                                 style="width: 60px; height: 60px; border-radius: 8px;">
                                                 <i class="fas fa-image text-muted"></i>
                                             </div>
@@ -119,9 +126,11 @@
 
                                     <td class="text-center">
                                         @if ($style->status)
-                                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Active</span>
+                                            <span
+                                                class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Active</span>
                                         @else
-                                            <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">Inactive</span>
+                                            <span
+                                                class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">Inactive</span>
                                         @endif
                                     </td>
 
@@ -139,19 +148,22 @@
 
                                     <td class="text-center">
                                         <div class="d-flex gap-2 justify-content-center">
-                                            <a href="{{ route('admin.creative-ai.styles.edit', $style) }}" 
+
+                                            <a href="{{ route('admin.creative-ai.styles.edit', $style) }}"
                                                 class="btn btn-sm btn-outline-primary rounded-pill" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <form action="{{ route('admin.creative-ai.styles.destroy', $style) }}" 
-                                                method="POST" class="d-inline" 
-                                                onsubmit="return confirm('Are you sure you want to delete this style?');">
+
+                                            <form action="{{ route('admin.creative-ai.styles.destroy', $style) }}"
+                                                method="POST" class="d-inline delete-form">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" title="Delete">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill"
+                                                    title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+
                                         </div>
                                     </td>
                                 </tr>
@@ -161,6 +173,7 @@
                                 </tr>
                             @endforelse
                         </tbody>
+
                     </table>
                 </div>
             </div>
@@ -169,7 +182,8 @@
                 <div class="card-footer bg-white border-top py-4">
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                         <div class="small text-muted">
-                            Showing {{ $styles->firstItem() }} to {{ $styles->lastItem() }} of {{ $styles->total() }} styles
+                            Showing {{ $styles->firstItem() }} to {{ $styles->lastItem() }} of {{ $styles->total() }}
+                            styles
                         </div>
 
                         <nav>
@@ -177,7 +191,8 @@
                                 @if ($styles->onFirstPage())
                                     <li class="page-item disabled"><span class="page-link">Prev</span></li>
                                 @else
-                                    <li class="page-item"><a class="page-link" href="{{ $styles->previousPageUrl() }}">Prev</a></li>
+                                    <li class="page-item"><a class="page-link"
+                                            href="{{ $styles->previousPageUrl() }}">Prev</a></li>
                                 @endif
 
                                 @foreach ($styles->getUrlRange(1, $styles->lastPage()) as $page => $url)
@@ -187,18 +202,22 @@
                                 @endforeach
 
                                 @if ($styles->hasMorePages())
-                                    <li class="page-item"><a class="page-link" href="{{ $styles->nextPageUrl() }}">Next</a></li>
+                                    <li class="page-item"><a class="page-link"
+                                            href="{{ $styles->nextPageUrl() }}">Next</a></li>
                                 @else
                                     <li class="page-item disabled"><span class="page-link">Next</span></li>
                                 @endif
                             </ul>
                         </nav>
+
                     </div>
                 </div>
             @endif
 
         </div>
+
     </div>
+
 
     <style>
         .table-row-hover:hover {
@@ -224,5 +243,43 @@
             color: #fff;
         }
     </style>
-@endsection
 
+
+    {{-- SweetAlert + Auto Hide --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Auto-hide success messages after 5 seconds
+        setTimeout(() => {
+            let alert = document.querySelector('.alert');
+            if (alert) {
+                alert.classList.remove('show');
+                alert.classList.add('fade');
+                setTimeout(() => alert.remove(), 500);
+            }
+        }, 5000);
+
+        // SweetAlert delete confirmation
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This action cannot be undone.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#e3342f",
+                    cancelButtonColor: "#6c757d",
+                    confirmButtonText: "Yes, delete it!"
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+
+            });
+        });
+    </script>
+
+@endsection

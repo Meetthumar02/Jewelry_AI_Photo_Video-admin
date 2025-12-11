@@ -1,8 +1,7 @@
 @extends('layout.app')
-
 @section('title', 'Create Model Design - Creative AI')
-
 @section('content')
+
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-lg-8 mx-auto">
@@ -11,7 +10,8 @@
                         <h3 class="fw-bold mb-1">Create New Model Design</h3>
                         <p class="text-muted mb-0">Add a new model design for Creative AI</p>
                     </div>
-                    <a href="{{ route('admin.creative-ai.model-designs.index') }}" class="btn btn-outline-secondary rounded-pill">
+                    <a href="{{ route('admin.creative-ai.model-designs.index') }}"
+                        class="btn btn-outline-secondary rounded-pill">
                         <i class="fas fa-arrow-left me-2"></i> Back to List
                     </a>
                 </div>
@@ -26,16 +26,19 @@
                                         <li>{{ $error }}</li>
                                     @endforeach
                                 </ul>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
                             </div>
                         @endif
 
-                        <form action="{{ route('admin.creative-ai.model-designs.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.creative-ai.model-designs.store') }}" method="POST"
+                            enctype="multipart/form-data">
                             @csrf
 
                             <div class="mb-4">
-                                <label for="name" class="form-label fw-semibold">Model Design Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                                <label for="name" class="form-label fw-semibold">Model Design Name <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control @error('name') is-invalid @enderror"
                                     id="name" name="name" value="{{ old('name') }}" required>
                                 @error('name')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -44,8 +47,8 @@
 
                             <div class="mb-4">
                                 <label for="description" class="form-label fw-semibold">Description</label>
-                                <textarea class="form-control @error('description') is-invalid @enderror" 
-                                    id="description" name="description" rows="4">{{ old('description') }}</textarea>
+                                <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description"
+                                    rows="4">{{ old('description') }}</textarea>
                                 @error('description')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -53,7 +56,7 @@
 
                             <div class="mb-4">
                                 <label for="image" class="form-label fw-semibold">Image</label>
-                                <input type="file" class="form-control @error('image') is-invalid @enderror" 
+                                <input type="file" class="form-control @error('image') is-invalid @enderror"
                                     id="image" name="image" accept="image/*">
                                 @error('image')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -64,7 +67,7 @@
                             <div class="row">
                                 <div class="col-md-6 mb-4">
                                     <label for="sort_order" class="form-label fw-semibold">Sort Order</label>
-                                    <input type="number" class="form-control @error('sort_order') is-invalid @enderror" 
+                                    <input type="number" class="form-control @error('sort_order') is-invalid @enderror"
                                         id="sort_order" name="sort_order" value="{{ old('sort_order', 0) }}" min="0">
                                     @error('sort_order')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -75,8 +78,8 @@
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label fw-semibold d-block">Status</label>
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="status" name="status" value="1"
-                                            {{ old('status', true) ? 'checked' : '' }}>
+                                        <input class="form-check-input" type="checkbox" id="status" name="status"
+                                            value="1" {{ old('status', true) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="status">
                                             Active
                                         </label>
@@ -85,7 +88,8 @@
                             </div>
 
                             <div class="d-flex gap-2 justify-content-end">
-                                <a href="{{ route('admin.creative-ai.model-designs.index') }}" class="btn btn-outline-secondary rounded-pill">
+                                <a href="{{ route('admin.creative-ai.model-designs.index') }}"
+                                    class="btn btn-outline-secondary rounded-pill">
                                     Cancel
                                 </a>
                                 <button type="submit" class="btn btn-primary rounded-pill">
@@ -99,4 +103,3 @@
         </div>
     </div>
 @endsection
-

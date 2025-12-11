@@ -14,7 +14,8 @@
                 <div class="badge bg-primary bg-opacity-10 text-primary px-4 py-2 fs-6 rounded-pill shadow-sm">
                     {{ $modelDesigns->total() }} Total Model Designs
                 </div>
-                <a href="{{ route('admin.creative-ai.model-designs.create') }}" class="btn btn-primary rounded-pill shadow-sm">
+                <a href="{{ route('admin.creative-ai.model-designs.create') }}"
+                    class="btn btn-primary rounded-pill shadow-sm">
                     <i class="fas fa-plus me-2"></i> Add New Model Design
                 </a>
             </div>
@@ -23,14 +24,15 @@
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
 
         <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
 
             <div class="card-header bg-white border-bottom py-4">
-                <form method="GET" action="{{ route('admin.creative-ai.model-designs.index') }}" class="row g-3 align-items-end">
+                <form method="GET" action="{{ route('admin.creative-ai.model-designs.index') }}"
+                    class="row g-3 align-items-end">
 
                     <div class="col-xl-4 col-lg-4 col-md-6">
                         <label class="form-label small text-muted">Search Model Designs</label>
@@ -47,8 +49,10 @@
                         <label class="form-label small text-muted">Status</label>
                         <select name="status" class="form-select shadow-sm">
                             <option value="">All Status</option>
-                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active Only</option>
-                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive Only</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active Only
+                            </option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive Only
+                            </option>
                         </select>
                     </div>
 
@@ -58,7 +62,8 @@
                             <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest</option>
                             <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest</option>
                             <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Name A-Z</option>
-                            <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>Name Z-A</option>
+                            <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>Name Z-A
+                            </option>
                         </select>
                     </div>
 
@@ -69,7 +74,8 @@
 
                     @if (request('search') || request('status') || request('sort'))
                         <div class="col-12 mt-2">
-                            <a href="{{ route('admin.creative-ai.model-designs.index') }}" class="btn btn-outline-secondary btn-sm rounded-pill">
+                            <a href="{{ route('admin.creative-ai.model-designs.index') }}"
+                                class="btn btn-outline-secondary btn-sm rounded-pill">
                                 Clear All Filters
                             </a>
                         </div>
@@ -97,10 +103,10 @@
                                 <tr class="border-bottom table-row-hover">
                                     <td>
                                         @if ($modelDesign->image && $modelDesign->image_url)
-                                            <img src="{{ $modelDesign->image_url }}" alt="{{ $modelDesign->name }}" 
+                                            <img src="{{ $modelDesign->image_url }}" alt="{{ $modelDesign->name }}"
                                                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
                                         @else
-                                            <div class="bg-light d-flex align-items-center justify-content-center" 
+                                            <div class="bg-light d-flex align-items-center justify-content-center"
                                                 style="width: 60px; height: 60px; border-radius: 8px;">
                                                 <i class="fas fa-image text-muted"></i>
                                             </div>
@@ -119,9 +125,11 @@
 
                                     <td class="text-center">
                                         @if ($modelDesign->status)
-                                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Active</span>
+                                            <span
+                                                class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Active</span>
                                         @else
-                                            <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">Inactive</span>
+                                            <span
+                                                class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">Inactive</span>
                                         @endif
                                     </td>
 
@@ -139,16 +147,18 @@
 
                                     <td class="text-center">
                                         <div class="d-flex gap-2 justify-content-center">
-                                            <a href="{{ route('admin.creative-ai.model-designs.edit', $modelDesign) }}" 
+                                            <a href="{{ route('admin.creative-ai.model-designs.edit', $modelDesign) }}"
                                                 class="btn btn-sm btn-outline-primary rounded-pill" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <form action="{{ route('admin.creative-ai.model-designs.destroy', $modelDesign) }}" 
-                                                method="POST" class="d-inline" 
-                                                onsubmit="return confirm('Are you sure you want to delete this model design?');">
+
+                                            <form
+                                                action="{{ route('admin.creative-ai.model-designs.destroy', $modelDesign) }}"
+                                                method="POST" class="d-inline delete-form">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" title="Delete">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill"
+                                                    title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -169,7 +179,8 @@
                 <div class="card-footer bg-white border-top py-4">
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                         <div class="small text-muted">
-                            Showing {{ $modelDesigns->firstItem() }} to {{ $modelDesigns->lastItem() }} of {{ $modelDesigns->total() }} model designs
+                            Showing {{ $modelDesigns->firstItem() }} to {{ $modelDesigns->lastItem() }} of
+                            {{ $modelDesigns->total() }} model designs
                         </div>
 
                         <nav>
@@ -177,7 +188,8 @@
                                 @if ($modelDesigns->onFirstPage())
                                     <li class="page-item disabled"><span class="page-link">Prev</span></li>
                                 @else
-                                    <li class="page-item"><a class="page-link" href="{{ $modelDesigns->previousPageUrl() }}">Prev</a></li>
+                                    <li class="page-item"><a class="page-link"
+                                            href="{{ $modelDesigns->previousPageUrl() }}">Prev</a></li>
                                 @endif
 
                                 @foreach ($modelDesigns->getUrlRange(1, $modelDesigns->lastPage()) as $page => $url)
@@ -187,7 +199,8 @@
                                 @endforeach
 
                                 @if ($modelDesigns->hasMorePages())
-                                    <li class="page-item"><a class="page-link" href="{{ $modelDesigns->nextPageUrl() }}">Next</a></li>
+                                    <li class="page-item"><a class="page-link"
+                                            href="{{ $modelDesigns->nextPageUrl() }}">Next</a></li>
                                 @else
                                     <li class="page-item disabled"><span class="page-link">Next</span></li>
                                 @endif
@@ -224,5 +237,37 @@
             color: #fff;
         }
     </style>
-@endsection
 
+    {{-- SweetAlert + Auto Hide Script --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Auto-hide success messages after 5 seconds
+        setTimeout(() => {
+            let alert = document.querySelector('.alert');
+            if (alert) {
+                alert.classList.remove('show');
+                alert.classList.add('fade');
+                setTimeout(() => alert.remove(), 500);
+            }
+        }, 5000);
+
+        // SweetAlert delete confirmation
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This action cannot be undone.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#e3342f",
+                    cancelButtonColor: "#6c757d",
+                    confirmButtonText: "Yes, delete it!"
+                }).then(result => {
+                    if (result.isConfirmed) form.submit();
+                });
+            });
+        });
+    </script>
+
+@endsection
