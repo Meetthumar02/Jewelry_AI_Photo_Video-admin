@@ -1,6 +1,6 @@
 @extends('layout.app')
 
-@section('title', 'Select Your Style - Creative AI')
+@section('title', 'Product Types - Creative AI')
 
 @section('content')
 
@@ -8,15 +8,15 @@
 
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <div>
-                <h3 class="fw-bold mb-1">Select Your Style</h3>
-                <p class="text-muted mb-0">Manage style configurations for Creative AI</p>
+                <h3 class="fw-bold mb-1">Product Types</h3>
+                <p class="text-muted mb-0">Manage product types for Creative AI</p>
             </div>
             <div class="d-flex gap-2">
                 <div class="badge bg-primary bg-opacity-10 text-primary px-4 py-2 fs-6 rounded-pill shadow-sm">
-                    {{ $styles->total() }} Total Configs
+                    {{ $productTypes->total() }} Total Product Types
                 </div>
-                <a href="{{ route('admin.creative-ai.styles.create') }}" class="btn btn-primary rounded-pill shadow-sm">
-                    <i class="fas fa-plus me-2"></i> Add New Configuration
+                <a href="{{ route('admin.creative-ai.product-types.create') }}" class="btn btn-primary rounded-pill shadow-sm">
+                    <i class="fas fa-plus me-2"></i> Add New Product Type
                 </a>
             </div>
         </div>
@@ -31,7 +31,18 @@
         <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
 
             <div class="card-header bg-white border-bottom py-4">
-                <form method="GET" action="{{ route('admin.creative-ai.styles.index') }}" class="row g-3 align-items-end">
+                <form method="GET" action="{{ route('admin.creative-ai.product-types.index') }}" class="row g-3 align-items-end">
+
+                    <div class="col-xl-3 col-lg-3 col-md-6">
+                        <label class="form-label small text-muted">Search Product Types</label>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-light border-0">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" name="search" class="form-control border-0"
+                                placeholder="Search by name..." value="{{ request('search') }}">
+                        </div>
+                    </div>
 
                     <div class="col-xl-3 col-lg-3 col-md-6">
                         <label class="form-label small text-muted">Filter by Industry</label>
@@ -49,10 +60,9 @@
                         <label class="form-label small text-muted">Filter by Category</label>
                         <select name="category_id" id="filter_category_id" class="form-select shadow-sm" {{ request('industry_id') ? '' : 'disabled' }}>
                             <option value="">All Categories</option>
-                            {{-- Populated via JS or if existing selection --}}
-                            @if(request('industry_id') && isset($categories)) 
+                            @if(request('industry_id') && isset($categories))
                                 @foreach($categories as $category)
-                                     <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                    <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
                                         {{ $category->name }}
                                     </option>
                                 @endforeach
@@ -60,29 +70,25 @@
                         </select>
                     </div>
 
-                    <div class="col-xl-3 col-lg-3 col-md-6">
-                        <label class="form-label small text-muted">Filter by Product Type</label>
-                        <select name="product_type_id" id="filter_product_type_id" class="form-select shadow-sm" {{ request('category_id') ? '' : 'disabled' }}>
-                            <option value="">All Product Types</option>
-                            {{-- Populated via JS --}}
-                             @if(request('category_id') && isset($productTypes)) 
-                                @foreach($productTypes as $pt)
-                                     <option value="{{ $pt->id }}" {{ request('product_type_id') == $pt->id ? 'selected' : '' }}>
-                                        {{ $pt->name }}
-                                    </option>
-                                @endforeach
-                            @endif
+                    <div class="col-xl-2 col-lg-2 col-md-6">
+                        <label class="form-label small text-muted">Status</label>
+                        <select name="status" class="form-select shadow-sm">
+                            <option value="">All Status</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active Only
+                            </option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive Only
+                            </option>
                         </select>
                     </div>
 
-                    <div class="col-xl-2 col-lg-2 col-md-6">
+                    <div class="col-xl-1 col-lg-1 col-md-6">
                         <label class="form-label small text-muted d-block">&nbsp;</label>
-                        <button type="submit" class="btn btn-primary w-100 shadow-sm rounded-pill">Apply</button>
+                        <button type="submit" class="btn btn-primary w-100 shadow-sm rounded-pill">Go</button>
                     </div>
-                    
-                    @if (request('industry_id') || request('category_id') || request('product_type_id'))
+
+                    @if (request('search') || request('status') || request('industry_id') || request('category_id'))
                         <div class="col-12 mt-2">
-                            <a href="{{ route('admin.creative-ai.styles.index') }}"
+                            <a href="{{ route('admin.creative-ai.product-types.index') }}"
                                 class="btn btn-outline-secondary btn-sm rounded-pill">
                                 Clear All Filters
                             </a>
@@ -97,45 +103,56 @@
                     <table class="table align-middle mb-0">
                         <thead class="bg-light text-muted text-uppercase small">
                             <tr>
-                                <th>Industry</th>
+                                <th>Name</th>
                                 <th>Category</th>
-                                <th>Product Type</th>
+                                <th>Industry</th>
+                                <th class="text-center">Status</th>
                                 <th>Created</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            @forelse ($styles as $style)
+                            @forelse ($productTypes as $productType)
                                 <tr class="border-bottom table-row-hover">
 
                                     <td>
-                                        <div class="fw-semibold">{{ $style->industry->name ?? 'N/A' }}</div>
-                                    </td>
-
-                                    <td>
-                                        <div class="text-muted">{{ $style->category->name ?? 'N/A' }}</div>
+                                        <div class="fw-semibold">{{ $productType->name }}</div>
                                     </td>
                                     
                                     <td>
-                                        <div class="text-muted">{{ $style->productType->name ?? 'N/A' }}</div>
+                                        <div class="text-muted">{{ $productType->category->name ?? 'N/A' }}</div>
+                                    </td>
+                                    
+                                    <td>
+                                        <div class="text-muted small">{{ $productType->category->industry->name ?? 'N/A' }}</div>
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if ($productType->status)
+                                            <span
+                                                class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Active</span>
+                                        @else
+                                            <span
+                                                class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">Inactive</span>
+                                        @endif
                                     </td>
 
                                     <td>
                                         <div class="text-muted small">
-                                            {{ $style->created_at->format('M d, Y') }}
+                                            {{ $productType->created_at->format('M d, Y') }}
                                         </div>
                                     </td>
 
                                     <td class="text-center">
                                         <div class="d-flex gap-2 justify-content-center">
 
-                                            <a href="{{ route('admin.creative-ai.styles.edit', $style) }}"
+                                            <a href="{{ route('admin.creative-ai.product-types.edit', $productType) }}"
                                                 class="btn btn-sm btn-outline-primary rounded-pill" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
 
-                                            <form action="{{ route('admin.creative-ai.styles.destroy', $style) }}"
+                                            <form action="{{ route('admin.creative-ai.product-types.destroy', $productType) }}"
                                                 method="POST" class="d-inline delete-form">
                                                 @csrf
                                                 @method('DELETE')
@@ -150,7 +167,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">No style configurations found</td>
+                                    <td colspan="6" class="text-center py-5 text-muted">No product types found</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -159,14 +176,14 @@
                 </div>
             </div>
 
-            @if ($styles->hasPages())
+            @if ($productTypes->hasPages())
                 <div class="card-footer bg-white border-top py-4">
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                         <div class="small text-muted">
-                            Showing {{ $styles->firstItem() }} to {{ $styles->lastItem() }} of {{ $styles->total() }}
-                            configurations
+                            Showing {{ $productTypes->firstItem() }} to {{ $productTypes->lastItem() }} of {{ $productTypes->total() }}
+                            product types
                         </div>
-                        {{ $styles->links('pagination::bootstrap-5') }}
+                        {{ $productTypes->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
             @endif
@@ -217,17 +234,12 @@
             });
         });
         
-        // Dynamic Filters
-        // Industry -> Category
-        const industrySelect = document.getElementById('filter_industry_id');
-        const categorySelect = document.getElementById('filter_category_id');
-        const productTypeSelect = document.getElementById('filter_product_type_id');
-        
-        industrySelect.addEventListener('change', function() {
+        // Dynamic Filter
+        document.getElementById('filter_industry_id').addEventListener('change', function() {
             const industryId = this.value;
+            const categorySelect = document.getElementById('filter_category_id');
+            
             categorySelect.innerHTML = '<option value="">All Categories</option>';
-            productTypeSelect.innerHTML = '<option value="">All Product Types</option>';
-            productTypeSelect.disabled = true;
             
             if (industryId) {
                 categorySelect.disabled = false;
@@ -243,28 +255,6 @@
                     });
             } else {
                 categorySelect.disabled = true;
-            }
-        });
-        
-        // Category -> Product Type
-        categorySelect.addEventListener('change', function() {
-            const categoryId = this.value;
-            productTypeSelect.innerHTML = '<option value="">All Product Types</option>';
-            
-            if (categoryId) {
-                productTypeSelect.disabled = false;
-                fetch(`{{ route('admin.creative-ai.get-product-types-by-category', ':id') }}`.replace(':id', categoryId))
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(pt => {
-                            const option = document.createElement('option');
-                            option.value = pt.id;
-                            option.textContent = pt.name;
-                            productTypeSelect.appendChild(option);
-                        });
-                    });
-            } else {
-                productTypeSelect.disabled = true;
             }
         });
     </script>

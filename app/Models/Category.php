@@ -5,14 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Style extends Model
+class Category extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'industry_id',
-        'category_id',
-        'product_type_id',
+        'name',
+        'image',
+        'status',
+    ];
+
+    protected $casts = [
+        'status' => 'boolean',
     ];
 
     public function industry()
@@ -20,13 +25,8 @@ class Style extends Model
         return $this->belongsTo(Industry::class);
     }
 
-    public function category()
+    public function productTypes()
     {
-        return $this->belongsTo(Category::class);
-    }
-
-    public function productType()
-    {
-        return $this->belongsTo(ProductType::class);
+        return $this->hasMany(ProductType::class);
     }
 }

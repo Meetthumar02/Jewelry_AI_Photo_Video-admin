@@ -1,0 +1,43 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('styles', function (Blueprint $table) {
+            // Drop existing columns
+            $table->dropColumn(['name', 'description', 'image', 'status', 'sort_order']);
+
+            // Add new FK columns
+            $table->foreignId('industry_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('category_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('product_type_id')->nullable()->constrained()->onDelete('set null');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('styles', function (Blueprint $table) {
+            $table->dropForeign(['industry_id']);
+            $table->dropForeign(['category_id']);
+            $table->dropForeign(['product_type_id']);
+            $table->dropColumn(['industry_id', 'category_id', 'product_type_id']);
+
+            // Re-add original columns (nullable since data was lost)
+            $table->string('name')->nullable();
+            $table->text('description')->nullable();
+            $table->string('image')->nullable();
+            $table->boolean('status')->default(true);
+            $table->integer('sort_order')->default(0);
+        });
+    }
+};

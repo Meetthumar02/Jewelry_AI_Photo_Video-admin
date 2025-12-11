@@ -10,16 +10,37 @@ class ModelDesign extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'description',
+        'industry_id',
+        'category_id',
+        'product_type_id',
+        'shoot_type_id',
         'image',
         'status',
-        'sort_order',
     ];
 
     protected $casts = [
         'status' => 'boolean',
     ];
+
+    public function industry()
+    {
+        return $this->belongsTo(Industry::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function productType()
+    {
+        return $this->belongsTo(ProductType::class);
+    }
+
+    public function shootType()
+    {
+        return $this->belongsTo(ShootType::class);
+    }
 
     /**
      * Get the full image URL
@@ -29,9 +50,8 @@ class ModelDesign extends Model
         if (!$this->image) {
             return null;
         }
-        
-        $modelDesignName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $this->name);
-        return asset('upload/Model Design/' . $modelDesignName . '/' . $this->image);
+
+        return asset('upload/Model Design/' . $this->image);
     }
 
     /**
@@ -42,8 +62,7 @@ class ModelDesign extends Model
         if (!$this->image) {
             return null;
         }
-        
-        $modelDesignName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $this->name);
-        return public_path('upload/Model Design/' . $modelDesignName . '/' . $this->image);
+
+        return public_path('upload/Model Design/' . $this->image);
     }
 }
