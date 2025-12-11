@@ -36,6 +36,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('industries', App\Http\Controllers\Admin\IndustryController::class);
         Route::resource('categories', App\Http\Controllers\Admin\CategoryController::class);
         Route::resource('product-types', App\Http\Controllers\Admin\ProductTypeController::class);
+        Route::resource('shoot-types', App\Http\Controllers\Admin\ShootTypeController::class);
         Route::resource('styles', App\Http\Controllers\Admin\StyleController::class);
         Route::resource('model-designs', App\Http\Controllers\Admin\ModelDesignController::class);
 

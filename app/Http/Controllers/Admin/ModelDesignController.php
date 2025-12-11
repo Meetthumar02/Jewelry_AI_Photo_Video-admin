@@ -4,29 +4,35 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ModelDesign;
+use App\Models\Industry;
+use App\Models\Category;
+use App\Models\ProductType;
+use App\Models\ShootType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
 
 class ModelDesignController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        $query = ModelDesign::query();
+        $query = ModelDesign::query()->with(['industry', 'category', 'productType', 'shootType']);
 
-        // Search functionality
-        if ($request->filled('search')) {
-            $searchTerm = $request->search;
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $searchTerm . '%');
-            });
+        if ($request->filled('industry_id')) {
+            $query->where('industry_id', $request->industry_id);
         }
 
-        // Status filter
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('product_type_id')) {
+            $query->where('product_type_id', $request->product_type_id);
+        }
+
+        if ($request->filled('shoot_type_id')) {
+            $query->where('shoot_type_id', $request->shoot_type_id);
+        }
+
         if ($request->filled('status')) {
             if ($request->status == 'active') {
                 $query->where('status', true);
@@ -35,202 +41,133 @@ class ModelDesignController extends Controller
             }
         }
 
-        // Sort
-        if ($request->filled('sort')) {
-            if ($request->sort == 'newest') {
-                $query->orderBy('created_at', 'desc');
-            } elseif ($request->sort == 'oldest') {
-                $query->orderBy('created_at', 'asc');
-            } elseif ($request->sort == 'name_asc') {
-                $query->orderBy('name', 'asc');
-            } elseif ($request->sort == 'name_desc') {
-                $query->orderBy('name', 'desc');
-            }
-        } else {
-            $query->orderBy('sort_order', 'asc')->orderBy('created_at', 'desc');
+        $modelDesigns = $query->latest()->paginate(12);
+        $industries = Industry::where('status', true)->orderBy('name')->get();
+        $shootTypes = ShootType::where('status', true)->orderBy('name')->get();
+
+        $categories = collect();
+        $productTypes = collect();
+
+        if ($request->filled('industry_id')) {
+            $categories = Category::where('industry_id', $request->industry_id)
+                ->where('status', true)
+                ->orderBy('name')
+                ->get();
         }
 
-        $modelDesigns = $query->paginate(10)->withQueryString();
+        if ($request->filled('category_id')) {
+            $productTypes = ProductType::where('category_id', $request->category_id)
+                ->where('status', true)
+                ->orderBy('name')
+                ->get();
+        }
 
-        return view('creative-ai.model-designs.index', compact('modelDesigns'));
+        return view('creative-ai.model-designs.index', compact('modelDesigns', 'industries', 'categories', 'productTypes', 'shootTypes'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('creative-ai.model-designs.create');
+        $industries = Industry::where('status', true)->orderBy('name')->get();
+        $shootTypes = ShootType::where('status', true)->orderBy('name')->get();
+
+        return view('creative-ai.model-designs.create', compact('industries', 'shootTypes'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'status' => 'nullable',
-                'sort_order' => 'nullable|integer|min:0',
-            ]);
+        $request->validate([
+            'industry_id' => 'required|exists:industries,id',
+            'category_id' => 'required|exists:categories,id',
+            'product_type_id' => 'required|exists:product_types,id',
+            'shoot_type_id' => 'required|exists:shoot_types,id',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'status' => 'nullable',
+        ]);
 
-            // Handle image upload
-            if ($request->hasFile('image')) {
-                $file = $request->file('image');
-                $originalName = $file->getClientOriginalName();
-                $modelDesignName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $validated['name']);
-                
-                // Create directory path: public/upload/Model Design/Model Design Name/
-                $uploadPath = public_path('upload/Model Design/' . $modelDesignName);
-                
-                // Create directory if it doesn't exist
-                if (!File::exists($uploadPath)) {
-                    File::makeDirectory($uploadPath, 0755, true);
-                }
-                
-                // Move file to the new location
-                $file->move($uploadPath, $originalName);
-                
-                // Store only the original filename in database
-                $validated['image'] = $originalName;
-            }
-
-            // Handle status checkbox (if not present, default to false)
-            $validated['status'] = $request->has('status') && ($request->status == 'on' || $request->status == '1') ? true : false;
-            
-            // Set default sort_order if not provided
-            $validated['sort_order'] = $validated['sort_order'] ?? 0;
-
-            ModelDesign::create($validated);
-
-            return redirect()->route('admin.creative-ai.model-designs.index')
-                ->with('success', 'Model Design created successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['error' => 'Failed to create model design: ' . $e->getMessage()]);
+        $imageName = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('upload/Model Design'), $imageName);
         }
+
+        ModelDesign::create([
+            'industry_id' => $request->industry_id,
+            'category_id' => $request->category_id,
+            'product_type_id' => $request->product_type_id,
+            'shoot_type_id' => $request->shoot_type_id,
+            'image' => $imageName,
+            'status' => $request->has('status'),
+        ]);
+
+        return redirect()->route('admin.creative-ai.model-designs.index')
+            ->with('success', 'Model Design created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(ModelDesign $modelDesign)
     {
+        $modelDesign->load(['industry', 'category', 'productType', 'shootType']);
         return view('creative-ai.model-designs.show', compact('modelDesign'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(ModelDesign $modelDesign)
     {
-        return view('creative-ai.model-designs.edit', compact('modelDesign'));
+        $modelDesign->load(['industry', 'category', 'productType', 'shootType']);
+        $industries = Industry::where('status', true)->orderBy('name')->get();
+        $categories = Category::where('industry_id', $modelDesign->industry_id)
+            ->where('status', true)
+            ->orderBy('name')
+            ->get();
+        $productTypes = ProductType::where('category_id', $modelDesign->category_id)
+            ->where('status', true)
+            ->orderBy('name')
+            ->get();
+        $shootTypes = ShootType::where('status', true)->orderBy('name')->get();
+
+        return view('creative-ai.model-designs.edit', compact('modelDesign', 'industries', 'categories', 'productTypes', 'shootTypes'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, ModelDesign $modelDesign)
     {
-        try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'status' => 'nullable',
-                'sort_order' => 'nullable|integer|min:0',
-            ]);
+        $request->validate([
+            'industry_id' => 'required|exists:industries,id',
+            'category_id' => 'required|exists:categories,id',
+            'product_type_id' => 'required|exists:product_types,id',
+            'shoot_type_id' => 'required|exists:shoot_types,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'status' => 'nullable',
+        ]);
 
-            $oldModelDesignName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $modelDesign->name);
-            $newModelDesignName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $validated['name']);
-            
-            // Handle image upload
-            if ($request->hasFile('image')) {
-                $file = $request->file('image');
-                $originalName = $file->getClientOriginalName();
-                
-                // Delete old image if exists
-                if ($modelDesign->image) {
-                    $oldImagePath = public_path('upload/Model Design/' . $oldModelDesignName . '/' . $modelDesign->image);
-                    if (File::exists($oldImagePath)) {
-                        File::delete($oldImagePath);
-                    }
-                }
-                
-                // Create directory path: public/upload/Model Design/Model Design Name/
-                $uploadPath = public_path('upload/Model Design/' . $newModelDesignName);
-                
-                // Create directory if it doesn't exist
-                if (!File::exists($uploadPath)) {
-                    File::makeDirectory($uploadPath, 0755, true);
-                }
-                
-                // Move file to the new location
-                $file->move($uploadPath, $originalName);
-                
-                // Store only the original filename in database
-                $validated['image'] = $originalName;
-            } elseif ($modelDesign->image && $oldModelDesignName != $newModelDesignName) {
-                // Name changed but no new image - move existing image to new directory
-                $oldImagePath = public_path('upload/Model Design/' . $oldModelDesignName . '/' . $modelDesign->image);
-                $newImagePath = public_path('upload/Model Design/' . $newModelDesignName);
-                
-                if (File::exists($oldImagePath)) {
-                    // Create new directory if it doesn't exist
-                    if (!File::exists($newImagePath)) {
-                        File::makeDirectory($newImagePath, 0755, true);
-                    }
-                    
-                    // Move image to new location
-                    File::move($oldImagePath, $newImagePath . '/' . $modelDesign->image);
-                    
-                    // Delete old directory if empty
-                    if (File::exists(public_path('upload/Model Design/' . $oldModelDesignName)) && count(File::files(public_path('upload/Model Design/' . $oldModelDesignName))) == 0) {
-                        File::deleteDirectory(public_path('upload/Model Design/' . $oldModelDesignName));
-                    }
-                }
-                // Image name stays the same in database
+        $imageName = $modelDesign->image;
+        if ($request->hasFile('image')) {
+            // Delete old image
+            if ($modelDesign->image && file_exists(public_path('upload/Model Design/' . $modelDesign->image))) {
+                unlink(public_path('upload/Model Design/' . $modelDesign->image));
             }
 
-            // Handle status checkbox
-            $validated['status'] = $request->has('status') && $request->status == 'on' ? true : false;
-            
-            // Set default sort_order if not provided
-            $validated['sort_order'] = $validated['sort_order'] ?? $modelDesign->sort_order;
-
-            $modelDesign->update($validated);
-
-            return redirect()->route('admin.creative-ai.model-designs.index')
-                ->with('success', 'Model Design updated successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['error' => 'Failed to update model design: ' . $e->getMessage()]);
+            $image = $request->file('image');
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('upload/Model Design'), $imageName);
         }
+
+        $modelDesign->update([
+            'industry_id' => $request->industry_id,
+            'category_id' => $request->category_id,
+            'product_type_id' => $request->product_type_id,
+            'shoot_type_id' => $request->shoot_type_id,
+            'image' => $imageName,
+            'status' => $request->has('status'),
+        ]);
+
+        return redirect()->route('admin.creative-ai.model-designs.index')
+            ->with('success', 'Model Design updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(ModelDesign $modelDesign)
     {
-        // Delete image if exists
-        if ($modelDesign->image) {
-            $modelDesignName = str_replace(['/', '\\', ' ', '?', '*', '|', '<', '>', ':', '"'], '_', $modelDesign->name);
-            $imagePath = public_path('upload/Model Design/' . $modelDesignName . '/' . $modelDesign->image);
-            if (File::exists($imagePath)) {
-                File::delete($imagePath);
-            }
-            
-            // Delete directory if empty
-            $modelDesignDir = public_path('upload/Model Design/' . $modelDesignName);
-            if (File::exists($modelDesignDir) && count(File::files($modelDesignDir)) == 0) {
-                File::deleteDirectory($modelDesignDir);
-            }
+        // Delete image
+        if ($modelDesign->image && file_exists(public_path('upload/Model Design/' . $modelDesign->image))) {
+            unlink(public_path('upload/Model Design/' . $modelDesign->image));
         }
 
         $modelDesign->delete();

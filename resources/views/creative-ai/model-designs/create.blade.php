@@ -1,14 +1,15 @@
 @extends('layout.app')
-@section('title', 'Create Model Design - Creative AI')
-@section('content')
 
+@section('title', 'Create Model Design - Creative AI')
+
+@section('content')
     <div class="container-fluid py-4">
         <div class="row">
-            <div class="col-lg-8 mx-auto">
+            <div class="col-lg-10 mx-auto">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h3 class="fw-bold mb-1">Create New Model Design</h3>
-                        <p class="text-muted mb-0">Add a new model design for Creative AI</p>
+                        <p class="text-muted mb-0">Upload design image for specific style and shoot type</p>
                     </div>
                     <a href="{{ route('admin.creative-ai.model-designs.index') }}"
                         class="btn btn-outline-secondary rounded-pill">
@@ -26,8 +27,7 @@
                                         <li>{{ $error }}</li>
                                     @endforeach
                                 </ul>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         @endif
 
@@ -35,59 +35,99 @@
                             enctype="multipart/form-data">
                             @csrf
 
-                            <div class="mb-4">
-                                <label for="name" class="form-label fw-semibold">Model Design Name <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                    id="name" name="name" value="{{ old('name') }}" required>
-                                @error('name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="description" class="form-label fw-semibold">Description</label>
-                                <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description"
-                                    rows="4">{{ old('description') }}</textarea>
-                                @error('description')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="image" class="form-label fw-semibold">Image</label>
-                                <input type="file" class="form-control @error('image') is-invalid @enderror"
-                                    id="image" name="image" accept="image/*">
-                                @error('image')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="text-muted">Max file size: 2MB. Supported formats: JPEG, PNG, JPG, GIF</small>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-4">
-                                    <label for="sort_order" class="form-label fw-semibold">Sort Order</label>
-                                    <input type="number" class="form-control @error('sort_order') is-invalid @enderror"
-                                        id="sort_order" name="sort_order" value="{{ old('sort_order', 0) }}" min="0">
-                                    @error('sort_order')
+                            <div class="row g-4">
+                                {{-- Industry Selection --}}
+                                <div class="col-md-6">
+                                    <label for="industry_id" class="form-label fw-semibold">1. Select Industry <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select @error('industry_id') is-invalid @enderror" id="industry_id"
+                                        name="industry_id" required>
+                                        <option value="">-- Choose Industry --</option>
+                                        @foreach($industries as $industry)
+                                            <option value="{{ $industry->id }}" {{ old('industry_id') == $industry->id ? 'selected' : '' }}>
+                                                {{ $industry->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('industry_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <small class="text-muted">Lower numbers appear first</small>
                                 </div>
 
-                                <div class="col-md-6 mb-4">
+                                {{-- Category Selection --}}
+                                <div class="col-md-6">
+                                    <label for="category_id" class="form-label fw-semibold">2. Select Category <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select @error('category_id') is-invalid @enderror" id="category_id"
+                                        name="category_id" required disabled>
+                                        <option value="">-- Choose Category --</option>
+                                    </select>
+                                    @error('category_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- Product Type Selection --}}
+                                <div class="col-md-6">
+                                    <label for="product_type_id" class="form-label fw-semibold">3. Select Product Type <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select @error('product_type_id') is-invalid @enderror"
+                                        id="product_type_id" name="product_type_id" required disabled>
+                                        <option value="">-- Choose Product Type --</option>
+                                    </select>
+                                    @error('product_type_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- Shoot Type Selection --}}
+                                <div class="col-md-6">
+                                    <label for="shoot_type_id" class="form-label fw-semibold">4. Select Shoot Type <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select @error('shoot_type_id') is-invalid @enderror"
+                                        id="shoot_type_id" name="shoot_type_id" required>
+                                        <option value="">-- Choose Shoot Type --</option>
+                                        @foreach($shootTypes as $shootType)
+                                            <option value="{{ $shootType->id }}" {{ old('shoot_type_id') == $shootType->id ? 'selected' : '' }}>
+                                                {{ $shootType->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('shoot_type_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- Image Upload --}}
+                                <div class="col-12">
+                                    <label for="image" class="form-label fw-semibold">5. Upload Design Image <span
+                                            class="text-danger">*</span></label>
+                                    <input type="file" class="form-control @error('image') is-invalid @enderror" id="image"
+                                        name="image" accept="image/*" required>
+                                    <small class="text-muted">Accepted formats: JPEG, PNG, JPG, GIF, WEBP (Max: 2MB)</small>
+                                    @error('image')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+
+                                    {{-- Image Preview --}}
+                                    <div id="imagePreview" class="mt-3" style="display: none;">
+                                        <img id="previewImg" src="" alt="Preview" class="img-thumbnail"
+                                            style="max-height: 200px;">
+                                    </div>
+                                </div>
+
+                                {{-- Status --}}
+                                <div class="col-12">
                                     <label class="form-label fw-semibold d-block">Status</label>
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="status" name="status"
-                                            value="1" {{ old('status', true) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="status">
-                                            Active
-                                        </label>
+                                        <input class="form-check-input" type="checkbox" id="status" name="status" value="1"
+                                            {{ old('status', true) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="status">Active</label>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="d-flex gap-2 justify-content-end">
+                            <div class="d-flex gap-2 justify-content-end mt-4">
                                 <a href="{{ route('admin.creative-ai.model-designs.index') }}"
                                     class="btn btn-outline-secondary rounded-pill">
                                     Cancel
@@ -102,4 +142,92 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const industrySelect = document.getElementById('industry_id');
+            const categorySelect = document.getElementById('category_id');
+            const productTypeSelect = document.getElementById('product_type_id');
+            const imageInput = document.getElementById('image');
+            const imagePreview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
+
+            // Check for retained values on error/reload
+            if (industrySelect.value) {
+                loadCategories(industrySelect.value, '{{ old('category_id') }}');
+            }
+            if ('{{ old('category_id') }}') {
+                loadProductTypes('{{ old('category_id') }}', '{{ old('product_type_id') }}');
+            }
+
+            industrySelect.addEventListener('change', function () {
+                loadCategories(this.value);
+            });
+
+            categorySelect.addEventListener('change', function () {
+                loadProductTypes(this.value);
+            });
+
+            // Image Preview
+            imageInput.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        previewImg.src = e.target.result;
+                        imagePreview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            function loadCategories(industryId, selectedCategory = null) {
+                categorySelect.innerHTML = '<option value="">-- Choose Category --</option>';
+                productTypeSelect.innerHTML = '<option value="">-- Choose Product Type --</option>';
+                productTypeSelect.disabled = true;
+
+                if (industryId) {
+                    categorySelect.disabled = false;
+                    fetch(`{{ route('admin.creative-ai.get-categories-by-industry', ':id') }}`.replace(':id', industryId))
+                        .then(response => response.json())
+                        .then(data => {
+                            data.forEach(category => {
+                                const option = document.createElement('option');
+                                option.value = category.id;
+                                option.textContent = category.name;
+                                if (selectedCategory && category.id == selectedCategory) {
+                                    option.selected = true;
+                                }
+                                categorySelect.appendChild(option);
+                            });
+                        });
+                } else {
+                    categorySelect.disabled = true;
+                }
+            }
+
+            function loadProductTypes(categoryId, selectedProductType = null) {
+                productTypeSelect.innerHTML = '<option value="">-- Choose Product Type --</option>';
+
+                if (categoryId) {
+                    productTypeSelect.disabled = false;
+                    fetch(`{{ route('admin.creative-ai.get-product-types-by-category', ':id') }}`.replace(':id', categoryId))
+                        .then(response => response.json())
+                        .then(data => {
+                            data.forEach(pt => {
+                                const option = document.createElement('option');
+                                option.value = pt.id;
+                                option.textContent = pt.name;
+                                if (selectedProductType && pt.id == selectedProductType) {
+                                    option.selected = true;
+                                }
+                                productTypeSelect.appendChild(option);
+                            });
+                        });
+                } else {
+                    productTypeSelect.disabled = true;
+                }
+            }
+        });
+    </script>
 @endsection
