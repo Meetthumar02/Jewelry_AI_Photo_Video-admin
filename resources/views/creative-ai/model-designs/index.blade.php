@@ -150,17 +150,7 @@
                                     </td>
 
                                     <td>
-                                        @php
-                                            $categoryName = 'N/A';
-                                            if (isset($design->category)) {
-                                                if (is_object($design->category) && isset($design->category->name)) {
-                                                    $categoryName = $design->category->name;
-                                                } elseif (is_string($design->category)) {
-                                                    $categoryName = $design->category;
-                                                }
-                                            }
-                                        @endphp
-                                        <div class="text-muted">{{ $categoryName }}</div>
+                                        <div class="text-muted">{{ $design->category->name ?? 'N/A' }}</div>
                                     </td>
                                     
                                     <td>
