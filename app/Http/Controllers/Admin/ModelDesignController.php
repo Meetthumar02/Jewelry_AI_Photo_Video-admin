@@ -84,11 +84,38 @@ class ModelDesignController extends Controller
             'status' => 'nullable',
         ]);
 
-        $imageName = null;
+        $imageRelativePath = null;
         if ($request->hasFile('image')) {
+            // Fetch related names
+            $industry = Industry::findOrFail($request->industry_id);
+            $category = Category::findOrFail($request->category_id);
+            $productType = ProductType::findOrFail($request->product_type_id);
+            $shootType = ShootType::findOrFail($request->shoot_type_id);
+
+            // Replace spaces with underscores
+            $industryName = str_replace(' ', '_', $industry->name);
+            $categoryName = str_replace(' ', '_', $category->name);
+            $productTypeName = str_replace(' ', '_', $productType->name);
+            $shootTypeName = str_replace(' ', '_', $shootType->name);
+
+            // Create hierarchical directory path
+            $directoryPath = "upload/{$industryName}/{$categoryName}/{$productTypeName}/{$shootTypeName}";
+            $fullDirectoryPath = public_path($directoryPath);
+
+            // Create directories if they don't exist
+            if (!file_exists($fullDirectoryPath)) {
+                mkdir($fullDirectoryPath, 0755, true);
+            }
+
+            // Generate unique filename
             $image = $request->file('image');
             $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('upload/Model Design'), $imageName);
+
+            // Move image to hierarchical directory
+            $image->move($fullDirectoryPath, $imageName);
+
+            // Store relative path in database
+            $imageRelativePath = "{$directoryPath}/{$imageName}";
         }
 
         ModelDesign::create([
@@ -96,7 +123,7 @@ class ModelDesignController extends Controller
             'category_id' => $request->category_id,
             'product_type_id' => $request->product_type_id,
             'shoot_type_id' => $request->shoot_type_id,
-            'image' => $imageName,
+            'image' => $imageRelativePath,
             'status' => $request->has('status'),
         ]);
 
@@ -138,16 +165,43 @@ class ModelDesignController extends Controller
             'status' => 'nullable',
         ]);
 
-        $imageName = $modelDesign->image;
+        $imageRelativePath = $modelDesign->image;
         if ($request->hasFile('image')) {
-            // Delete old image
-            if ($modelDesign->image && file_exists(public_path('upload/Model Design/' . $modelDesign->image))) {
-                unlink(public_path('upload/Model Design/' . $modelDesign->image));
+            // Delete old image using the full stored path
+            if ($modelDesign->image && file_exists(public_path($modelDesign->image))) {
+                unlink(public_path($modelDesign->image));
             }
 
+            // Fetch related names
+            $industry = Industry::findOrFail($request->industry_id);
+            $category = Category::findOrFail($request->category_id);
+            $productType = ProductType::findOrFail($request->product_type_id);
+            $shootType = ShootType::findOrFail($request->shoot_type_id);
+
+            // Replace spaces with underscores
+            $industryName = str_replace(' ', '_', $industry->name);
+            $categoryName = str_replace(' ', '_', $category->name);
+            $productTypeName = str_replace(' ', '_', $productType->name);
+            $shootTypeName = str_replace(' ', '_', $shootType->name);
+
+            // Create hierarchical directory path
+            $directoryPath = "upload/{$industryName}/{$categoryName}/{$productTypeName}/{$shootTypeName}";
+            $fullDirectoryPath = public_path($directoryPath);
+
+            // Create directories if they don't exist
+            if (!file_exists($fullDirectoryPath)) {
+                mkdir($fullDirectoryPath, 0755, true);
+            }
+
+            // Generate unique filename
             $image = $request->file('image');
             $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('upload/Model Design'), $imageName);
+
+            // Move image to hierarchical directory
+            $image->move($fullDirectoryPath, $imageName);
+
+            // Store relative path in database
+            $imageRelativePath = "{$directoryPath}/{$imageName}";
         }
 
         $modelDesign->update([
@@ -155,7 +209,7 @@ class ModelDesignController extends Controller
             'category_id' => $request->category_id,
             'product_type_id' => $request->product_type_id,
             'shoot_type_id' => $request->shoot_type_id,
-            'image' => $imageName,
+            'image' => $imageRelativePath,
             'status' => $request->has('status'),
         ]);
 
@@ -165,9 +219,9 @@ class ModelDesignController extends Controller
 
     public function destroy(ModelDesign $modelDesign)
     {
-        // Delete image
-        if ($modelDesign->image && file_exists(public_path('upload/Model Design/' . $modelDesign->image))) {
-            unlink(public_path('upload/Model Design/' . $modelDesign->image));
+        // Delete image using the full stored path
+        if ($modelDesign->image && file_exists(public_path($modelDesign->image))) {
+            unlink(public_path($modelDesign->image));
         }
 
         $modelDesign->delete();

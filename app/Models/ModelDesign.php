@@ -51,7 +51,7 @@ class ModelDesign extends Model
             return null;
         }
 
-        return asset('upload/Model Design/' . $this->image);
+        return asset($this->image);
     }
 
     /**
@@ -63,6 +63,6 @@ class ModelDesign extends Model
             return null;
         }
 
-        return public_path('upload/Model Design/' . $this->image);
+        return public_path($this->image);
     }
 }

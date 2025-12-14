@@ -102,12 +102,12 @@
                                 <label for="image" class="form-label fw-semibold">Image</label>
                                 @if ($modelDesign->image)
                                     <div class="mb-3">
-                                        <img src="{{ asset('upload/Model Design/' . $modelDesign->image) }}" 
+                                        <img src="{{ asset($modelDesign->image) }}" 
                                             alt="Current Design" 
-                                            class="img-thumbnail rounded" 
+                                            class="rounded" 
                                             style="max-width: 300px; max-height: 300px; object-fit: cover;">
                                         <div class="mt-2">
-                                            <small class="text-muted">Current image: {{ $modelDesign->image }}</small>
+                                            <small class="text-muted">Current image: {{ basename($modelDesign->image) }}</small>
                                         </div>
                                     </div>
                                 @endif

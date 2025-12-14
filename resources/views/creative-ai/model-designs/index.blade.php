@@ -132,11 +132,11 @@
 
                                     <td>
                                         @if($design->image)
-                                            <img src="{{ asset('upload/Model Design/' . $design->image) }}" 
+                                            <img src="{{ asset($design->image) }}" 
                                                  alt="Design" 
-                                                 class="img-thumbnail rounded" 
+                                                 class="rounded" 
                                                  style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
-                                                 onclick="showImageModal('{{ asset('upload/Model Design/' . $design->image) }}')">
+                                                 onclick="showImageModal('{{ asset($design->image) }}')">
                                         @else
                                             <div class="bg-light rounded d-flex align-items-center justify-content-center" 
                                                  style="width: 80px; height: 80px;">

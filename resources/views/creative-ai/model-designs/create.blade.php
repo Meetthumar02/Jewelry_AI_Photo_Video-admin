@@ -111,7 +111,7 @@
 
                                     {{-- Image Preview --}}
                                     <div id="imagePreview" class="mt-3" style="display: none;">
-                                        <img id="previewImg" src="" alt="Preview" class="img-thumbnail"
+                                        <img id="previewImg" src="" alt="Preview" class="rounded"
                                             style="max-height: 200px;">
                                     </div>
                                 </div>
