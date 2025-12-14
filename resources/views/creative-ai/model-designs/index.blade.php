@@ -121,6 +121,7 @@
                                 <th>Category</th>
                                 <th>Product Type</th>
                                 <th>Shoot Type</th>
+                                <th>Prompt</th>
                                 <th class="text-center">Status</th>
                                 <th class="text-center">Actions</th>
                             </tr>
@@ -161,6 +162,12 @@
                                         <span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill">
                                             {{ $design->shootType->name ?? 'N/A' }}
                                         </span>
+                                    </td>
+
+                                    <td>
+                                        <div class="text-muted text-truncate" style="max-width: 200px;" title="{{ $design->prompt }}">
+                                            {{ $design->prompt ?? '-' }}
+                                        </div>
                                     </td>
 
                                     <td class="text-center">

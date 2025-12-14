@@ -99,6 +99,15 @@
                             </div>
 
                             <div class="mb-4">
+                                <label for="prompt" class="form-label fw-semibold">Prompt</label>
+                                <textarea class="form-control @error('prompt') is-invalid @enderror" id="prompt"
+                                    name="prompt" rows="3" placeholder="Enter specific instructions or prompt for this design">{{ old('prompt', $modelDesign->prompt) }}</textarea>
+                                @error('prompt')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-4">
                                 <label for="image" class="form-label fw-semibold">Image</label>
                                 @if ($modelDesign->image)
                                     <div class="mb-3">

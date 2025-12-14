@@ -15,6 +15,7 @@ class ModelDesign extends Model
         'product_type_id',
         'shoot_type_id',
         'image',
+        'prompt',
         'status',
     ];
 

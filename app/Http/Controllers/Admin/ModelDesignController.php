@@ -81,6 +81,7 @@ class ModelDesignController extends Controller
             'product_type_id' => 'required|exists:product_types,id',
             'shoot_type_id' => 'required|exists:shoot_types,id',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'prompt' => 'nullable|string',
             'status' => 'nullable',
         ]);
 
@@ -124,6 +125,7 @@ class ModelDesignController extends Controller
             'product_type_id' => $request->product_type_id,
             'shoot_type_id' => $request->shoot_type_id,
             'image' => $imageRelativePath,
+            'prompt' => $request->prompt,
             'status' => $request->has('status'),
         ]);
 
@@ -162,6 +164,7 @@ class ModelDesignController extends Controller
             'product_type_id' => 'required|exists:product_types,id',
             'shoot_type_id' => 'required|exists:shoot_types,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'prompt' => 'nullable|string',
             'status' => 'nullable',
         ]);
 
@@ -210,6 +213,7 @@ class ModelDesignController extends Controller
             'product_type_id' => $request->product_type_id,
             'shoot_type_id' => $request->shoot_type_id,
             'image' => $imageRelativePath,
+            'prompt' => $request->prompt,
             'status' => $request->has('status'),
         ]);
 

@@ -98,6 +98,17 @@
                                     @enderror
                                 </div>
 
+                                {{-- Prompt --}}
+                                <div class="col-12">
+                                    <label for="prompt" class="form-label fw-semibold">Prompt</label>
+                                    <textarea class="form-control @error('prompt') is-invalid @enderror" id="prompt"
+                                        name="prompt" rows="3"
+                                        placeholder="Enter specific instructions or prompt for this design">{{ old('prompt') }}</textarea>
+                                    @error('prompt')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 {{-- Image Upload --}}
                                 <div class="col-12">
                                     <label for="image" class="form-label fw-semibold">5. Upload Design Image <span
